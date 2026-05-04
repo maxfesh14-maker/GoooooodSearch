@@ -6,73 +6,52 @@
     <title>Gooooood Search</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #ffffff;
+            background-color: white;
             padding: 20px;
         }
 
-        /* Настройки (Язык и Фильтры) */
         .top-bar {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            background: #f8f9fa;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: flex; gap: 15px; margin-bottom: 20px;
+            background: #f8f9fa; padding: 10px 20px; border-radius: 20px;
         }
 
-        /* Логотип */
         .logo {
-            font-size: clamp(50px, 10vw, 90px);
-            font-weight: bold;
-            margin: 20px 0;
-            cursor: pointer;
-            user-select: none;
+            font-size: clamp(50px, 10vw, 80px);
+            font-weight: bold; margin-bottom: 20px;
+            cursor: pointer; user-select: none;
         }
-        .g { color: #4285F4; }
-        .o1 { color: #EA4335; }
-        .o2 { color: #FBBC05; }
-        .d { color: #34A853; }
+        .g { color: #4285F4; } .o1 { color: #EA4335; } .o2 { color: #FBBC05; } .d { color: #34A853; }
 
-        /* Контейнер поиска */
-        .search-box {
-            width: 100%;
-            max-width: 600px;
-        }
+        .search-container { width: 100%; max-width: 700px; }
 
-        /* Скрываем мусор от Google, оставляем только нужное */
-        .gsc-control-cse { border: none !important; background: transparent !important; padding: 0 !important; }
-        .gsc-input-box { border-radius: 24px !important; border: 1px solid #dfe1e5 !important; }
-        .gsc-search-button-v2 { border-radius: 20px !important; background-color: #4285F4 !important; }
+        /* Настройка, чтобы результаты были встроены (не всплывали) */
+        .gsc-control-cse { border: none !important; padding: 0 !important; }
+        .gsc-results-wrapper-overlay { display: none !important; } /* Убиваем оверлей (всплывалку) */
+        .gsc-results-wrapper-visible { position: static !important; } /* Фиксируем результаты на странице */
     </style>
 </head>
 <body>
 
     <div class="top-bar">
         <select id="lang" onchange="applyLang()">
-            <option value="ru">Русский 🇷🇺</option>
-            <option value="en">English 🇺🇸</option>
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
         </select>
-        
-        <label>
-            <input type="checkbox" id="rknsafe"> <span id="txt-safe">Список РКН</span>
-        </label>
+        <label><input type="checkbox" id="rknsafe"> <span id="txt-safe">Список РКН</span></label>
     </div>
 
     <div class="logo" id="logo" onclick="location.reload()">
         <span class="g">G</span><span class="o1">o</span><span class="o2">o</span><span class="d">d</span>
     </div>
 
-    <div class="search-box">
+    <div class="search-container">
         <script async src="https://cse.google.com/cse.js?cx=2358a1ff7eac84a06"></script>
-        <div class="gcse-search"></div>
+        <div class="gcse-search" data-autoSearchOnLoad="false"></div>
     </div>
 
     <script>
@@ -84,25 +63,17 @@
         function applyLang() {
             const l = document.getElementById('lang').value;
             document.getElementById('txt-safe').innerText = ui[l].safe;
-            
-            // Пробуем поменять подсказку в поиске Google
-            const input = document.querySelector('input.gsc-input');
-            if(input) input.placeholder = ui[l].ph;
-            
             localStorage.setItem('gLang', l);
         }
 
         function growLogo() {
             const logo = document.getElementById('logo');
-            const os = Math.floor(Math.random() * 6) + 6;
+            const os = Math.floor(Math.random() * 5) + 6;
             let html = '<span class="g">G</span>';
-            for(let i=0; i<os; i++) {
-                html += `<span class="${i%2===0?'o1':'o2'}">o</span>`;
-            }
+            for(let i=0; i<os; i++) html += `<span class="${i%2===0?'o1':'o2'}">o</span>`;
             logo.innerHTML = html + '<span class="d">d</span>';
         }
 
-        // Инъекция фильтров в поиск
         window.__gcse = {
             parsetags: 'onload',
             callback: function() {
@@ -113,10 +84,7 @@
                 const handleSearch = () => {
                     growLogo();
                     if(document.getElementById('rknsafe').checked) {
-                        // Дописываем фильтр сайтов в скрытом режиме
-                        if(!inp.value.includes('site:')) {
-                            inp.value += " (site:wikipedia.org OR site:dnevnik.ru)";
-                        }
+                        if(!inp.value.includes('site:')) inp.value += " site:wikipedia.org";
                     }
                 };
 
@@ -127,10 +95,7 @@
 
         window.onload = () => {
             const saved = localStorage.getItem('gLang');
-            if(saved) {
-                document.getElementById('lang').value = saved;
-                applyLang();
-            }
+            if(saved) { document.getElementById('lang').value = saved; applyLang(); }
         };
     </script>
 </body>
