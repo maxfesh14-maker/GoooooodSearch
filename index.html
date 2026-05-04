@@ -11,36 +11,43 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: white;
+            background-color: #ffffff;
             padding: 20px;
         }
 
-        /* Настройки вверху */
+        /* Панель управления */
         .top-bar {
-            display: flex; gap: 15px; margin-bottom: 20px;
-            background: #f8f9fa; padding: 10px 20px; border-radius: 20px;
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #f1f3f4;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
         }
 
+        /* Логотип */
         .logo {
-            font-size: clamp(50px, 10vw, 80px);
-            font-weight: bold; margin-bottom: 20px;
-            cursor: pointer; user-select: none;
+            font-size: clamp(50px, 12vw, 90px);
+            font-weight: bold;
+            margin: 30px 0;
+            cursor: pointer;
+            user-select: none;
         }
-        .g { color: #4285F4; } .o1 { color: #EA4335; } .o2 { color: #FBBC05; } .d { color: #34A853; }
+        .g { color: #4285F4; }
+        .o1 { color: #EA4335; }
+        .o2 { color: #FBBC05; }
+        .d { color: #34A853; }
 
-        .search-area { width: 100%; max-width: 800px; }
+        .search-area {
+            width: 100%;
+            max-width: 600px;
+        }
 
-        /* Красивое оформление для Google CSE */
-        .gsc-control-cse { border: none !important; padding: 0 !important; background: transparent !important; }
+        /* Стили для поиска Google */
+        .gsc-control-cse { border: none !important; background: transparent !important; padding: 0 !important; }
         .gsc-input-box { border-radius: 24px !important; border: 1px solid #dfe1e5 !important; }
         .gsc-search-button-v2 { border-radius: 20px !important; background-color: #4285F4 !important; }
-        
-        /* Гарантируем видимость результатов на странице */
-        .gsc-results-wrapper-visible {
-            display: block !important;
-            position: relative !important;
-            width: 100% !important;
-        }
     </style>
 </head>
 <body>
@@ -50,7 +57,9 @@
             <option value="ru">Русский 🇷🇺</option>
             <option value="en">English 🇺🇸</option>
         </select>
-        <label><input type="checkbox" id="rknsafe"> <span id="txt-safe">Список РКН</span></label>
+        <label>
+            <input type="checkbox" id="rknsafe"> <span id="txt-safe">Список РКН</span>
+        </label>
     </div>
 
     <div class="logo" id="logo" onclick="location.reload()">
@@ -60,7 +69,7 @@
     <div class="search-area">
         <script async src="https://cse.google.com/cse.js?cx=2358a1ff7eac84a06"></script>
         
-        <div class="gcse-search" data-resultsUrl="index.html"></div>
+        <div class="gcse-search"></div>
     </div>
 
     <script>
@@ -71,16 +80,23 @@
 
         function applyLang() {
             const l = document.getElementById('lang').value;
-            const safeLabel = document.getElementById('txt-safe');
-            if (safeLabel) safeLabel.innerText = ui[l].safe;
+            const label = document.getElementById('txt-safe');
+            if (label) label.innerText = ui[l].safe;
+            
+            // Меняем плейсхолдер
+            const input = document.querySelector('input.gsc-input');
+            if(input) input.placeholder = ui[l].ph;
+            
             localStorage.setItem('gLang', l);
         }
 
         function growLogo() {
             const logo = document.getElementById('logo');
-            const os = Math.floor(Math.random() * 6) + 6;
+            const count = Math.floor(Math.random() * 6) + 6;
             let html = '<span class="g">G</span>';
-            for(let i=0; i<os; i++) html += `<span class="${i%2===0?'o1':'o2'}">o</span>`;
+            for(let i=0; i<count; i++) {
+                html += `<span class="${i%2===0?'o1':'o2'}">o</span>`;
+            }
             logo.innerHTML = html + '<span class="d">d</span>';
         }
 
@@ -88,11 +104,13 @@
             parsetags: 'onload',
             callback: function() {
                 applyLang();
+                
                 const btn = document.querySelector('.gsc-search-button-v2');
                 const inp = document.querySelector('input.gsc-input');
 
-                const handleSearch = () => {
+                const startSearch = () => {
                     growLogo();
+                    // Если галочка стоит, добавляем фильтр к запросу
                     if(document.getElementById('rknsafe').checked) {
                         if(inp && !inp.value.includes('site:')) {
                             inp.value += " site:wikipedia.org";
@@ -100,22 +118,18 @@
                     }
                 };
 
-                if(btn) btn.addEventListener('click', handleSearch);
-                if(inp) inp.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSearch(); });
+                if(btn) btn.addEventListener('click', startSearch);
+                if(inp) inp.addEventListener('keypress', (e) => { if(e.key==='Enter') startSearch(); });
             }
         };
 
         window.onload = () => {
             const saved = localStorage.getItem('gLang');
             if(saved) {
-                const select = document.getElementById('lang');
-                if (select) {
-                    select.value = saved;
-                    applyLang();
-                }
+                document.getElementById('lang').value = saved;
+                applyLang();
             }
         };
     </script>
 </body>
 </html>
- 
