@@ -15,6 +15,7 @@
             padding: 20px;
         }
 
+        /* Настройки вверху */
         .top-bar {
             display: flex; gap: 15px; margin-bottom: 20px;
             background: #f8f9fa; padding: 10px 20px; border-radius: 20px;
@@ -27,20 +28,27 @@
         }
         .g { color: #4285F4; } .o1 { color: #EA4335; } .o2 { color: #FBBC05; } .d { color: #34A853; }
 
-        .search-container { width: 100%; max-width: 700px; }
+        .search-area { width: 100%; max-width: 800px; }
 
-        /* Настройка, чтобы результаты были встроены (не всплывали) */
-        .gsc-control-cse { border: none !important; padding: 0 !important; }
-        .gsc-results-wrapper-overlay { display: none !important; } /* Убиваем оверлей (всплывалку) */
-        .gsc-results-wrapper-visible { position: static !important; } /* Фиксируем результаты на странице */
+        /* Красивое оформление для Google CSE */
+        .gsc-control-cse { border: none !important; padding: 0 !important; background: transparent !important; }
+        .gsc-input-box { border-radius: 24px !important; border: 1px solid #dfe1e5 !important; }
+        .gsc-search-button-v2 { border-radius: 20px !important; background-color: #4285F4 !important; }
+        
+        /* Гарантируем видимость результатов на странице */
+        .gsc-results-wrapper-visible {
+            display: block !important;
+            position: relative !important;
+            width: 100% !important;
+        }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
         <select id="lang" onchange="applyLang()">
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
+            <option value="ru">Русский 🇷🇺</option>
+            <option value="en">English 🇺🇸</option>
         </select>
         <label><input type="checkbox" id="rknsafe"> <span id="txt-safe">Список РКН</span></label>
     </div>
@@ -49,9 +57,10 @@
         <span class="g">G</span><span class="o1">o</span><span class="o2">o</span><span class="d">d</span>
     </div>
 
-    <div class="search-container">
+    <div class="search-area">
         <script async src="https://cse.google.com/cse.js?cx=2358a1ff7eac84a06"></script>
-        <div class="gcse-search" data-autoSearchOnLoad="false"></div>
+        
+        <div class="gcse-search" data-resultsUrl="index.html"></div>
     </div>
 
     <script>
@@ -62,13 +71,14 @@
 
         function applyLang() {
             const l = document.getElementById('lang').value;
-            document.getElementById('txt-safe').innerText = ui[l].safe;
+            const safeLabel = document.getElementById('txt-safe');
+            if (safeLabel) safeLabel.innerText = ui[l].safe;
             localStorage.setItem('gLang', l);
         }
 
         function growLogo() {
             const logo = document.getElementById('logo');
-            const os = Math.floor(Math.random() * 5) + 6;
+            const os = Math.floor(Math.random() * 6) + 6;
             let html = '<span class="g">G</span>';
             for(let i=0; i<os; i++) html += `<span class="${i%2===0?'o1':'o2'}">o</span>`;
             logo.innerHTML = html + '<span class="d">d</span>';
@@ -84,7 +94,9 @@
                 const handleSearch = () => {
                     growLogo();
                     if(document.getElementById('rknsafe').checked) {
-                        if(!inp.value.includes('site:')) inp.value += " site:wikipedia.org";
+                        if(inp && !inp.value.includes('site:')) {
+                            inp.value += " site:wikipedia.org";
+                        }
                     }
                 };
 
@@ -95,7 +107,13 @@
 
         window.onload = () => {
             const saved = localStorage.getItem('gLang');
-            if(saved) { document.getElementById('lang').value = saved; applyLang(); }
+            if(saved) {
+                const select = document.getElementById('lang');
+                if (select) {
+                    select.value = saved;
+                    applyLang();
+                }
+            }
         };
     </script>
 </body>
