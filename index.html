@@ -5,35 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gooooood Search Engine</title>
     <style>
-        /* 1. ГЛАВНЫЙ СТИЛЬ */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #ffffff;
-            color: #202124;
-            min-height: 100vh;
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: white; }
+        .logo { font-size: clamp(50px, 10vw, 80px); font-weight: bold; margin-top: 40px; margin-bottom: 20px; cursor: pointer; }
+        .g { color: #4285F4; } .o1 { color: #EA4335; } .o2 { color: #FBBC05; } .d { color: #34A853; }
+        
+        .search-area { width: 100%; max-width: 600px; }
+        .tools { display: flex; gap: 15px; margin-bottom: 15px; font-size: 14px; justify-content: center; flex-wrap: wrap; }
+        
+        /* Стили для встроеного поиска */
+        .gsc-control-cse { border: none !important; padding: 0 !important; }
+        .gsc-input-box { border-radius: 24px !important; }
+        .gsc-search-button-v2 { border-radius: 20px !important; background-color: #4285F4 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="logo" id="logo" onclick="location.reload()">
+        <span class="g">G</span><span class="o1">o</span><span class="o2">o</span><span class="d">d</span>
+    </div>
+
+    <div class="search-area">
+        <div class="tools">
+            <select id="region">
+                <option value="">Весь мир</option>
+                <option value="countryRU">Россия</option>
+                <option value="countryBY">Беларусь</option>
+            </select>
+            <label><input type="checkbox" id="safe"> Список РКН</label>
+        </div>
+
+        <script async src="https://cse.google.com/cse.js?cx=2358a1ff7eac84a06"></script>
+        
+        <div class="gcse-search"></div>
+    </div>
+
+    <script>
+        // Это "мозги" твоего поиска
+        window.__gcse = {
+            parsetags: 'onload',
+            callback: function() {
+                // Ждем, пока Google создаст кнопку, и "ловим" её
+                const searchBtn = document.querySelector('.gsc-search-button-v2');
+                const inputField = document.querySelector('input.gsc-input');
+
+                if (searchBtn) {
+                    searchBtn.addEventListener('click', function() {
+                        applyFilters();
+                    });
+                }
+                
+                // Если нажали Enter
+                inputField.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') applyFilters();
+                });
+            }
+        };
+
+        function applyFilters() {
+            // 1. Анимация логотипа
+            updateLogo();
+
+            // 2. Логика фильтров
+            const isSafe = document.getElementById('safe').checked;
+            const region = document.getElementById('region').value;
+            const inputField = document.querySelector('input.gsc-input');
+            
+            let extra = "";
+            
+            // Если включен РКН — ищем только на хороших сайтах
+            if (isSafe) {
+                extra += " (site:wikipedia.org OR site:dnevnik.ru OR site:gosuslugi.ru)";
+            }
+            
+            // Если выбран регион — добавляем его (Google понимает это через cr=...)
+            // Внимание: CSE лучше всего работает через текстовые добавки
+            if (region === "countryRU") extra += " lang_ru";
+
+            // Добавляем наши настройки к поисковому слову "тихо"
+            if (extra !== "" && !inputField.value.includes(extra)) {
+                inputField.value += extra;
+            }
         }
 
-        /* 2. ЛОГОТИП (Адаптивный) */
-        .logo-container {
-            margin-top: 60px;
-            margin-bottom: 20px;
-            text-align: center;
-            cursor: pointer;
-            user-select: none;
+        function updateLogo() {
+            const logo = document.getElementById('logo');
+            const count = Math.floor(Math.random() * 6) + 6;
+            let res = '<span class="g">G</span>';
+            for (let i = 0; i < count; i++) {
+                res += `<span class="${i % 2 === 0 ? 'o1' : 'o2'}">o</span>`;
+            }
+            logo.innerHTML = res + '<span class="d">d</span>';
         }
-
-        .logo {
-            font-size: clamp(45px, 12vw, 90px);
-            font-weight: bold;
-            letter-spacing: -2px;
-        }
-
-        .g { color: #4285F4; }
+    </script>
+</body>
+</html>
         .o1 { color: #EA4335; }
         .o2 { color: #FBBC05; }
         .d { color: #34A853; }
