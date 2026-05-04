@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gooooood Search Engine</title>
+    <style>
+        /* 1. ГЛАВНЫЙ СТИЛЬ */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+            color: #202124;
+            min-height: 100vh;
+        }
+
+        /* 2. ЛОГОТИП (Адаптивный) */
+        .logo-container {
+            margin-top: 60px;
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .logo {
+            font-size: clamp(45px, 12vw, 90px);
+            font-weight: bold;
+            letter-spacing: -2px;
+        }
+
+        .g { color: #4285F4; }
+        .o1 { color: #EA4335; }
+        .o2 { color: #FBBC05; }
+        .d { color: #34A853; }
+
+        /* 3. ОБЛАСТЬ ПОИСКА */
+        .search-wrapper {
+            width: 90%;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        /* Настройка внешнего вида стандартного блока Google */
+        .gcse-search {
+            width: 100%;
+        }
+
+        /* Свои настройки поверх Google (чтобы было аккуратно) */
+        .gsc-control-cse {
+            border: none !important;
+            background-color: transparent !important;
+            padding: 0 !important;
+        }
+
+        .gsc-input-box {
+            border-radius: 24px !important;
+            padding: 5px 15px !important;
+            border: 1px solid #dfe1e5 !important;
+        }
+
+        .gsc-search-button-v2 {
+            border-radius: 20px !important;
+            background-color: #4285F4 !important;
+        }
+
+        /* 4. ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ (Регионы и РКН) */
+        .extra-tools {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #70757a;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #dfe1e5;
+            background: #f8f9fa;
+        }
+
+        /* 5. КОНТЕЙНЕР РЕЗУЛЬТАТОВ */
+        #results-area {
+            width: 95%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-container" id="main-logo" onclick="location.reload()">
+        <span class="logo">
+            <span class="g">G</span><span class="o1">o</span><span class="o2">o</span><span class="d">d</span>
+        </span>
+    </div>
+
+    <div class="extra-tools">
+        <select id="region-select">
+            <option value="213">Москва</option>
+            <option value="2">Санкт-Петербург</option>
+            <option value="157">Минск</option>
+        </select>
+        <label><input type="checkbox" id="rknsafe"> Фильтр РКН (Разрешенные)</label>
+    </div>
+
+    <div class="search-wrapper">
+        <script async src="https://cse.google.com/cse.js?cx=2358a1ff7eac84a06"></script>
+        <div class="gcse-search"></div>
+    </div>
+
+    <div id="results-area">
+        </div>
+
+    <script>
+        // Функция для изменения логотипа (много букв "o")
+        function updateLogoStyle() {
+            const logoSpan = document.querySelector('.logo');
+            const count = Math.floor(Math.random() * 8) + 6; // От 6 до 14 букв "o"
+            
+            let newHtml = '<span class="g">G</span>';
+            for (let i = 0; i < count; i++) {
+                let cl = (i % 2 === 0) ? 'o1' : 'o2';
+                newHtml += `<span class="${cl}">o</span>`;
+            }
+            newHtml += '<span class="d">d</span>';
+            logoSpan.innerHTML = newHtml;
+        }
+
+        // Логика фильтра РКН (добавляем операторы к запросу)
+        window.__gcse = {
+            parsetags: 'onload',
+            callback: function() {
+                // Ждем нажатия кнопки
+                const searchBtn = document.querySelector('.gsc-search-button');
+                if (searchBtn) {
+                    searchBtn.addEventListener('click', () => {
+                        updateLogoStyle();
+                    });
+                }
+            }
+        };
+
+        // Если нажали Enter в поле ввода
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                updateLogoStyle();
+            }
+        });
+    </script>
+
+</body>
+</html>
